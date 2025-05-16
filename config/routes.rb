@@ -17,11 +17,12 @@ end
   root to: 'pages#home'
   resources :showus, only: [:index, :new, :create]
 
-  resources :users, only: [:show] do
+  resources :users, only: [:show], constraints: { id: /\d+/ } do
   collection do
     get :search
   end
 end
+
 
 
 end

@@ -32,43 +32,48 @@
 
   <body>
 
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f4f4f4;">
+  <div>
+    <%= link_to "🏠 Home", showus_path, style: "margin-right: 20px; font-weight: bold;" %>
+    <% if user_signed_in? %>
+      <%= link_to "➕", new_showu_path, style: "font-size: 20px;" %>
+    <% end %>
+  </div>
 
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f4f4f4;">
-      <div>
-        <%= link_to "🏠 Home", showus_path, style: "margin-right: 20px; font-weight: bold;" %>
-        <% if user_signed_in? %>
-          <%= link_to "➕", new_showu_path, style: "font-size: 20px;" %>
-        <% end %>
-      </div>
-
-     <div style="position: relative; display: inline-block;">
+ <div style="position: relative; display: inline-block;">
   <span id="avatar-icon" style="cursor: pointer;">👤</span>
   <div id="dropdown" style="position: absolute; right: 0; background: white; border: 1px solid #ccc; padding: 5px; display: none;">
-<%= link_to "Profile", user_path(current_user), style: "display: block;" %>
-<%= link_to "Sign Out", destroy_user_session_path, method: :delete, data: { confirm: "Are you sure?" } %>
+    <% if user_signed_in? %>
+      <%= link_to "Profile", user_path(current_user), style: "display: block;" %>
+      <%= link_to "Sign Out", destroy_user_session_path, method: :delete, style: "display: block;" %>
+    <% else %>
+      <%= link_to "Sign In", new_user_session_path, style: "display: block;" %>
+    <% end %>
   </div>
 </div>
 
-    </header>
+</header>
 
     <div style="padding: 20px;">
       <%= yield %>
     </div>
 
     <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const avatar = document.getElementById("avatar-icon");
-    const dropdown = document.getElementById("dropdown");
+      document.addEventListener('DOMContentLoaded', () => {
+        const avatarIcon = document.getElementById('avatar-icon');
+        const dropdown = document.getElementById('dropdown');
 
-    avatar.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    });
+        avatarIcon.addEventListener('click', () => {
+          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
 
-    document.addEventListener("click", () => {
-      dropdown.style.display = "none";
-    });
-  });
-</script>
+        // Hide dropdown if clicking outside
+        document.addEventListener('click', (event) => {
+          if (!avatarIcon.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+      });
+    </script>
   </body>
 </html>
