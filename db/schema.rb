@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_16_103949) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_16_154141) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,6 +29,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_16_103949) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "receiver_id"
+    t.string "spotify_url"
+    t.string "tmdb_poster_path"
+    t.index ["receiver_id"], name: "index_showus_on_receiver_id"
     t.index ["user_id"], name: "index_showus_on_user_id"
   end
 

@@ -1,35 +1,63 @@
-<h1>ShowUs Feed</h1>
-
-<%= link_to "New ShowU", new_showu_path, class: "btn btn-primary" if user_signed_in? %>
-
-<ul>
+<div class="feed">
   <% @showus.each do |showu| %>
-    <li style="margin-bottom: 30px; padding: 10px; border-bottom: 1px solid #ccc;">
-      <p>
-        <strong>
-          <%= showu.user&.email || "Unknown User" %>
-        </strong>
-        showed
-        <strong>
-          <%= showu.receiver&.email || "Unknown Receiver" %>
-        </strong>
-        "<%= showu.description %>"
-        <small>
-          <%= time_ago_in_words(showu.created_at) %> ago
-        </small>
-      </p>
+    <% is_spotify = showu.spotify_url.present? %>
+    <div class="postcard <%= 'spotify-post' if is_spotify %>">
+      <div class="postcard-header">
+        <strong><%= showu.user&.username || "Unknown User" %></strong> showed
+        <strong><%= showu.receiver&.username || "Unknown Receiver" %></strong>
+        <span class="time"><%= time_ago_in_words(showu.created_at) %> ago</span>
+      </div>
 
-      <% if showu.youtube_url.present? %>
-        <p>
-          <a href="<%= showu.youtube_url %>" target="_blank">🎬 Watch Video</a>
-        </p>
-      <% end %>
+    <div class="postcard-media">
+  <% if showu.youtube_url.present? %>
+    <% youtube_id = showu.youtube_url[/v=([^&]+)/, 1] || showu.youtube_url.split('/').last %>
+    <iframe width="100%" src="https://www.youtube.com/embed/<%= youtube_id %>" frameborder="0" allowfullscreen></iframe>
 
-      <% if showu.image_url.present? %>
-        <p>
-          <img src="<%= showu.image_url %>" alt="ShowU image" style="max-width: 300px;">
-        </p>
-      <% end %>
-    </li>
+  <% elsif showu.spotify_url.present? %>
+    <% spotify_id = showu.spotify_url.split('/').last.split('?').first %>
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/<%= spotify_id %>?utm_source=generator"
+            width="100%" frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"></iframe>
+
+  <% elsif showu.tmdb_poster_path.present? %>
+<img
+  src="https://image.tmdb.org/t/p/w500<%= showu.tmdb_poster_path %>"
+  alt="Movie Poster"
+  style="display: block; margin: 0 auto; max-width: 200px; height: auto;"
+>
+
+  <% elsif showu.image_url.present? %>
+    <img src="<%= showu.image_url %>" alt="ShowU image" class="postcard-image">
+
+  <% else %>
+    <div class="no-media">No media available</div>
   <% end %>
-</ul>
+</div>
+
+
+      <div class="postcard-description">
+        <%= showu.description %>
+      </div>
+
+      <div class="postcard-actions">
+        <button class="like-btn">Like</button>
+        <button class="comment-btn" onclick="toggleCommentBox(<%= showu.id %>)">Comment</button>
+      </div>
+
+      <div class="postcard-comments" id="comment-box-<%= showu.id %>" style="display: none;">
+        <form>
+          <textarea placeholder="Write a comment..." rows="2"></textarea>
+          <button type="submit">Post</button>
+        </form>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function toggleCommentBox(id) {
+    const box = document.getElementById(`comment-box-${id}`);
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  }
+</script>

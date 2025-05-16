@@ -1,18 +1,124 @@
-<h1>Search Users</h1>
+<h1 style="text-align: center; font-size: 32px; margin-bottom: 20px;">Search Users</h1>
 
-<%= form_with url: search_users_path, method: :get, local: true do |form| %>
-  <%= form.label :query, "Username" %>
-  <%= form.text_field :query %>
-  <%= form.submit "Search" %>
-<% end %>
-
-<% if @users.present? %>
-  <h2>Results:</h2>
-  <ul>
-    <% @users.each do |user| %>
-      <li><%= link_to user.username, user_path(user.username) %></li>
+<div id="user-search-container">
+  <div class="search-box">
+    <%= form_with url: search_users_path, method: :get, local: true, html: { id: "user-search-form" } do |form| %>
+      <%= form.text_field :query, id: "user-search-input", autocomplete: "off", placeholder: "Search by username..." %>
     <% end %>
-  </ul>
-<% elsif params[:query].present? %>
-  <p>No users found.</p>
-<% end %>
+    <ul id="search-suggestions"></ul>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("user-search-input");
+    const suggestions = document.getElementById("search-suggestions");
+
+    input.addEventListener("input", () => {
+      const query = input.value.trim();
+
+      if (query.length < 2) {
+        suggestions.style.display = "none";
+        suggestions.innerHTML = "";
+        return;
+      }
+
+      fetch(`/users/search.json?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          suggestions.innerHTML = "";
+
+          if (data.length > 0) {
+            data.forEach(user => {
+              const li = document.createElement("li");
+              const link = document.createElement("a");
+              link.href = `/users/${user.username}`;
+              link.textContent = user.username;
+              li.appendChild(link);
+              suggestions.appendChild(li);
+            });
+          } else {
+            const li = document.createElement("li");
+            li.textContent = `No results for "${query}"`;
+            li.style.color = "#999";
+            li.style.fontStyle = "italic";
+            suggestions.appendChild(li);
+          }
+
+          suggestions.style.display = "block";
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("user-search-container").contains(e.target)) {
+        suggestions.style.display = "none";
+      }
+    });
+  });
+</script>
+
+<style>
+  #search-suggestions {
+    border: 1px solid #ddd;
+    max-height: 250px;
+    overflow-y: auto;
+    list-style: none;
+    margin-top: 6px;
+    padding-left: 0;
+    background: white;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  #search-suggestions li {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  #search-suggestions li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    width: 100%;
+  }
+
+  #search-suggestions li:hover {
+    background-color: #f7f7f7;
+  }
+
+  <style>
+  #user-search-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: 500px;
+    background-color: #fafafa;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    position: relative;
+    margin:auto;
+  }
+
+  #user-search-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  /* keep your existing #search-suggestions styling here */
+</style>
+
+</style>

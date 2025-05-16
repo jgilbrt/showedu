@@ -6,57 +6,140 @@
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+
     <style>
-      /* Dropdown menu hidden by default */
+      /* Reset and base */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        background-color: #fafafa;
+        color: #333;
+      }
+
+      /* Header styles */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 30px;
+        background-color: #007bff;
+        color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      /* Logo container on the left */
+      #logo {
+        height: 40px;
+        width: auto;
+        user-select: none;
+      }
+
+      /* Right side container */
+      .header-right {
+        display: flex;
+        align-items: center;
+      }
+
+      /* Links on the right */
+      .header-right a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 25px;
+        font-size: 18px;
+        transition: color 0.3s ease;
+      }
+      .header-right a:hover {
+        color: #cce5ff;
+      }
+
+      /* Create button bigger */
+      .header-right a.create-link {
+        font-weight: 700;
+        font-size: 20px;
+      }
+
+      /* User avatar container */
+      #avatar-icon {
+        cursor: pointer;
+        font-size: 24px;
+        user-select: none;
+        margin-left: 25px;
+      }
+
+      /* Dropdown container */
       #dropdown {
         position: absolute;
-        right: 0;
+        right: 30px; /* align with padding */
         background: white;
-        border: 1px solid #ccc;
-        padding: 5px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 10px 0;
+        width: 140px;
         display: none;
-        min-width: 100px;
         z-index: 1000;
       }
+
+      /* Dropdown links */
       #dropdown a {
         display: block;
-        padding: 5px 10px;
+        padding: 10px 20px;
         text-decoration: none;
-        color: black;
+        color: #333;
+        font-weight: 600;
+        transition: background-color 0.25s ease, color 0.25s ease;
       }
       #dropdown a:hover {
-        background-color: #eee;
+        background-color: #007bff;
+        color: white;
       }
+
+      /* Container for main content */
+      main, .content {
+        max-width: 720px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      .search-link {
+  font-size: 20px;
+  margin-left: 25px;
+}
+
     </style>
   </head>
 
   <body>
+    <header>
+      <!-- Left side: logo -->
+      <div>
+        <%= image_tag "LOGO.png", alt: "ShowUs Logo", id: "logo" %>
+      </div>
 
-<header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f4f4f4;">
-  <div>
-    <%= link_to "🏠 Home", showus_path, style: "margin-right: 20px; font-weight: bold;" %>
-    <% if user_signed_in? %>
-      <%= link_to "➕", new_showu_path, style: "font-size: 20px;" %>
-    <% end %>
-  </div>
+      <!-- Right side: links + avatar -->
+      <div class="header-right" style="position: relative;">
+        <%= link_to "🏠 Home", showus_path %>
+        <% if user_signed_in? %>
+          <%= link_to "➕ Create", new_showu_path, class: "create-link" %>
+        <% end %>
+<%= link_to "🔍 Search", "/users/search", class: "search-link", aria: { label: "Search users" } %>
 
- <div style="position: relative; display: inline-block;">
-  <span id="avatar-icon" style="cursor: pointer;">👤</span>
-  <div id="dropdown" style="position: absolute; right: 0; background: white; border: 1px solid #ccc; padding: 5px; display: none;">
-    <% if user_signed_in? %>
-      <%= link_to "Profile", user_path(current_user), style: "display: block;" %>
-      <%= link_to "Sign Out", destroy_user_session_path, method: :delete, style: "display: block;" %>
-    <% else %>
-      <%= link_to "Sign In", new_user_session_path, style: "display: block;" %>
-    <% end %>
-  </div>
-</div>
+        <span id="avatar-icon" aria-label="User menu" role="button" tabindex="0">👤</span>
+        <div id="dropdown" aria-hidden="true">
+          <% if user_signed_in? %>
+            <%= link_to "Profile", user_path(current_user.username) %>
+            <%= link_to "Sign Out", destroy_user_session_path, method: :delete, data: { confirm: "Are you sure you want to sign out?" } %>
+          <% else %>
+            <%= link_to "Sign In", new_user_session_path %>
+          <% end %>
+        </div>
+      </div>
+    </header>
 
-</header>
-
-    <div style="padding: 20px;">
+    <main class="content">
       <%= yield %>
-    </div>
+    </main>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -64,13 +147,28 @@
         const dropdown = document.getElementById('dropdown');
 
         avatarIcon.addEventListener('click', () => {
-          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+          if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+            dropdown.setAttribute('aria-hidden', 'true');
+          } else {
+            dropdown.style.display = 'block';
+            dropdown.setAttribute('aria-hidden', 'false');
+          }
         });
 
-        // Hide dropdown if clicking outside
+        // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
           if (!avatarIcon.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.style.display = 'none';
+            dropdown.setAttribute('aria-hidden', 'true');
+          }
+        });
+
+        // Allow keyboard toggle (Enter or Space)
+        avatarIcon.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            avatarIcon.click();
           }
         });
       });

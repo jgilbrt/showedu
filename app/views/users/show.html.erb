@@ -1,24 +1,92 @@
-<h1><%= @user.username %>'s Profile</h1>
+<div class="profile-container">
 
-<h2>Your Showus</h2>
-<ul>
-  <% @showus.each do |showu| %>
-    <li><%= showu.description %> - <em><%= time_ago_in_words(showu.created_at) %> ago</em></li>
-  <% end %>
-</ul>
+  <div class="profile-header">
+    <h1><%= @user.username %>'s Profile</h1>
 
-<h2>Followers (<%= @followers.count %>)</h2>
-<ul>
-  <% @followers.each do |follower| %>
-    <li><%= link_to follower.username, user_path(follower.username) %></li>
-  <% end %>
-</ul>
+    <% if user_signed_in? && current_user != @user %>
+      <% if current_user.following.include?(@user) %>
+        <%= button_to "Unfollow", unfollow_user_path(@user.username), method: :delete %>
+      <% else %>
+        <%= button_to "Follow", follow_user_path(@user.username), method: :post %>
+      <% end %>
+    <% end %>
+  </div>
 
-<h2>Following (<%= @following.count %>)</h2>
-<ul>
-  <% @following.each do |followed| %>
-    <li><%= link_to followed.username, user_path(followed.username) %></li>
-  <% end %>
-</ul>
+  <div class="follow-info">
+    <div>
+      Followers: <%= @followers.count %>
+      <ul class="follow-list">
+        <% @followers.each do |follower| %>
+          <li><%= link_to follower.username, user_path(follower.username) %></li>
+        <% end %>
+      </ul>
+    </div>
 
-<%= link_to "Search Users", search_users_path %>
+    <div>
+      Following: <%= @following.count %>
+      <ul class="follow-list">
+        <% @following.each do |followed| %>
+          <li><%= link_to followed.username, user_path(followed.username) %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <h2 style="text-align:center">Your ShowU's</h2>
+
+  <div class="feed">
+    <% @showus.each do |showu| %>
+      <% is_spotify = showu.spotify_url.present? %>
+      <div class="postcard <%= 'spotify-post' if is_spotify %>">
+        <div class="postcard-header">
+          <strong><%= showu.user&.username || "Unknown User" %></strong> showed
+          <strong><%= showu.receiver&.username || "Unknown Receiver" %></strong>
+          <span class="time"><%= time_ago_in_words(showu.created_at) %> ago</span>
+        </div>
+
+        <div class="postcard-media">
+          <% if showu.youtube_url.present? %>
+            <% youtube_id = showu.youtube_url[/v=([^&]+)/, 1] || showu.youtube_url.split('/').last %>
+            <iframe width="100%" src="https://www.youtube.com/embed/<%= youtube_id %>" frameborder="0" allowfullscreen></iframe>
+
+          <% elsif showu.spotify_url.present? %>
+            <% spotify_id = showu.spotify_url.split('/').last.split('?').first %>
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/<%= spotify_id %>?utm_source=generator"
+                    width="100%" frameborder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"></iframe>
+
+          <% elsif showu.image_url.present? %>
+            <img src="<%= showu.image_url %>" alt="ShowU image" class="postcard-image">
+
+          <% else %>
+            <div class="no-media">No media available</div>
+          <% end %>
+        </div>
+
+        <div class="postcard-description">
+          <%= showu.description %>
+        </div>
+
+        <div class="postcard-actions">
+          <button class="like-btn">Like</button>
+          <button class="comment-btn" onclick="toggleCommentBox(<%= showu.id %>)">Comment</button>
+        </div>
+
+        <div class="postcard-comments" id="comment-box-<%= showu.id %>" style="display: none;">
+          <form>
+            <textarea placeholder="Write a comment..." rows="2"></textarea>
+            <button type="submit">Post</button>
+          </form>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  function toggleCommentBox(id) {
+    const box = document.getElementById(`comment-box-${id}`);
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  }
+</script>

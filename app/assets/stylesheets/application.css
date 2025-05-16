@@ -13,3 +13,351 @@
  *= require_tree .
  *= require_self
  */
+
+ /*
+
+this is for showus/index.html.erb
+
+*/
+.feed {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.postcard {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  /* REMOVED overflow hidden to let postcard grow with content */
+  /* overflow: hidden; */
+  width: 100%;
+  max-width: 600px; /* or whatever max width you want */
+  margin: 20px auto;
+  border-radius: 8px;
+  background: white;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.postcard-header,
+.postcard-description,
+.postcard-actions,
+.postcard-comments {
+  padding: 12px 16px;
+}
+
+/* The middle media section */
+.postcard-media {
+  width: 100%;
+  /* Reduced padding to avoid clipping issues */
+  padding: 0;
+  background: #f9f9f9;
+  box-sizing: border-box;
+}
+
+/* All iframes fill container width, height based on content */
+.postcard-media iframe {
+  width: 100%;
+  display: block; /* removes bottom gap */
+  border: none;
+  /* Added box-sizing for safer sizing */
+  box-sizing: border-box;
+  /* Added object-fit contain to keep aspect ratio */
+  object-fit: contain;
+  padding: 0;
+  margin: 0;
+}
+
+/* YouTube iframe fixed height */
+.postcard:not(.spotify-post) .postcard-media iframe {
+  height: 360px; /* height to show full YouTube thumbnail */
+}
+
+/* Spotify iframe smaller height */
+.postcard.spotify-post .postcard-media iframe {
+  height: 152px; /* Spotify embed size */
+  border-radius: 12px;
+}
+
+.no-media {
+  padding: 20px;
+  font-size: 16px;
+  color: #999;
+  text-align: center;
+}
+
+.postcard-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.media-link {
+  font-size: 18px;
+  color: #c4302b; /* YouTube red */
+  text-decoration: none;
+}
+
+.postcard-description {
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #444;
+}
+
+.postcard-actions {
+  padding: 10px 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+}
+
+.like-btn, .comment-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.like-btn:hover, .comment-btn:hover {
+  background-color: #e9ecef;
+}
+
+.like-btn:active, .comment-btn:active {
+  transform: scale(0.97);
+}
+
+.postcard-comments {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.postcard-comments textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+  padding: 8px;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.postcard-comments button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 7px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.postcard-comments button:hover {
+  background-color: #0056b3;
+}
+
+
+/* showus/new.html.erb styles */
+
+form {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+form input[type="text"],
+form select,
+form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form select:focus,
+form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+form input[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  padding: 7px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+form input[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+div > h2 {
+  color: #b00020;
+  margin-bottom: 10px;
+}
+
+div ul {
+  list-style: inside disc;
+  color: #b00020;
+}
+
+/* users/show.html.erb styles */
+
+.profile-container {
+  max-width: 720px;
+  margin: 30px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.profile-header h1 {
+  font-weight: 700;
+  font-size: 2.4rem;
+  margin: 0;
+}
+
+.profile-header form {
+  margin: 0;
+}
+
+.profile-header form input[type="submit"] {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.profile-header form input[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.follow-info {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.follow-info div {
+  cursor: default;
+}
+
+.search-users-link {
+  display: inline-block;
+  margin-bottom: 30px;
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid #007bff;
+  padding: 6px 12px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.search-users-link:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+ul.showus-list {
+  list-style: none;
+  padding: 0;
+}
+
+ul.showus-list li {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+ul.showus-list li em {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+ul.follow-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 0;
+  list-style: none;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+ul.follow-list li {
+  background: #007bff;
+  padding: 8px 15px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+ul.follow-list li a {
+  color: white;
+  text-decoration: none;
+}
+
+ul.follow-list li a:hover {
+  text-decoration: underline;
+}
+
+button:focus,
+input[type="submit"]:focus {
+  outline: 2px solid #0056b3;
+  outline-offset: 2px;
+}
