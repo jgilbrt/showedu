@@ -1,0 +1,38 @@
+<h1>New ShowU</h1>
+
+<%= form_with(model: @showu, local: true) do |form| %>
+  <% if @showu.errors.any? %>
+    <div>
+      <h2><%= pluralize(@showu.errors.count, "error") %> prohibited this ShowU from being saved:</h2>
+      <ul>
+        <% @showu.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+  <%= form.label :receiver_id, "Who do you want to show this to?" %><br>
+  <%= form.collection_select :receiver_id, User.where.not(id: current_user.id), :id, :email, prompt: "Select a follower" %>
+</div>
+
+  <div>
+    <%= form.label :description %><br>
+    <%= form.text_area :description %>
+  </div>
+
+  <div>
+    <%= form.label :youtube_url %><br>
+    <%= form.text_field :youtube_url %>
+  </div>
+
+  <div>
+    <%= form.label :image_url %><br>
+    <%= form.text_field :image_url %>
+  </div>
+
+  <div>
+    <%= form.submit "Post ShowU" %>
+  </div>
+<% end %>

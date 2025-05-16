@@ -1,0 +1,35 @@
+<h1>ShowUs Feed</h1>
+
+<%= link_to "New ShowU", new_showu_path, class: "btn btn-primary" if user_signed_in? %>
+
+<ul>
+  <% @showus.each do |showu| %>
+    <li style="margin-bottom: 30px; padding: 10px; border-bottom: 1px solid #ccc;">
+      <p>
+        <strong>
+          <%= showu.user&.email || "Unknown User" %>
+        </strong>
+        showed
+        <strong>
+          <%= showu.receiver&.email || "Unknown Receiver" %>
+        </strong>
+        "<%= showu.description %>"
+        <small>
+          <%= time_ago_in_words(showu.created_at) %> ago
+        </small>
+      </p>
+
+      <% if showu.youtube_url.present? %>
+        <p>
+          <a href="<%= showu.youtube_url %>" target="_blank">🎬 Watch Video</a>
+        </p>
+      <% end %>
+
+      <% if showu.image_url.present? %>
+        <p>
+          <img src="<%= showu.image_url %>" alt="ShowU image" style="max-width: 300px;">
+        </p>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

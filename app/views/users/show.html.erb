@@ -1,0 +1,24 @@
+<h1><%= @user.username %>'s Profile</h1>
+
+<h2>Your Showus</h2>
+<ul>
+  <% @showus.each do |showu| %>
+    <li><%= showu.description %> - <em><%= time_ago_in_words(showu.created_at) %> ago</em></li>
+  <% end %>
+</ul>
+
+<h2>Followers (<%= @followers.count %>)</h2>
+<ul>
+  <% @followers.each do |follower| %>
+    <li><%= link_to follower.username, user_path(follower.username) %></li>
+  <% end %>
+</ul>
+
+<h2>Following (<%= @following.count %>)</h2>
+<ul>
+  <% @following.each do |followed| %>
+    <li><%= link_to followed.username, user_path(followed.username) %></li>
+  <% end %>
+</ul>
+
+<%= link_to "Search Users", search_users_path %>
