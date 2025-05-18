@@ -7,6 +7,10 @@ class Showu < ApplicationRecord
   validates :receiver, presence: true
   validate :at_least_one_media_url_present
 
+  # Associations for likes and comments
+  has_many :likes, dependent: :destroy
+  has_many :comments, dependent: :destroy
+
   def display_text
     "#{user.username} showed #{receiver.username} #{description} #{time_ago_in_words(created_at)} ago"
   end
@@ -27,10 +31,9 @@ class Showu < ApplicationRecord
   private
 
   # Custom validation to ensure at least one media URL is present
- def at_least_one_media_url_present
-  if youtube_url.blank? && image_url.blank? && spotify_url.blank? && tmdb_poster_path.blank?
-    errors.add(:base, "Please provide at least one media link (YouTube, Image, Spotify, or TMDB).")
+  def at_least_one_media_url_present
+    if youtube_url.blank? && image_url.blank? && spotify_url.blank? && tmdb_poster_path.blank?
+      errors.add(:base, "Please provide at least one media link (YouTube, Image, Spotify, or TMDB).")
+    end
   end
-end
-
 end

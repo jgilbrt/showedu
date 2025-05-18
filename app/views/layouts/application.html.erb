@@ -9,7 +9,6 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
 
     <style>
-      /* Reset and base */
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
@@ -17,7 +16,6 @@
         color: #333;
       }
 
-      /* Header styles */
       header {
         display: flex;
         justify-content: space-between;
@@ -28,107 +26,155 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
 
-      /* Logo container on the left */
       #logo {
         height: 40px;
         width: auto;
         user-select: none;
       }
 
-      /* Right side container */
       .header-right {
         display: flex;
         align-items: center;
+        position: relative;
       }
 
-      /* Links on the right */
-      .header-right a {
+      .nav-icon {
+        display: flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+        margin-left: 25px;
+        cursor: pointer;
         color: white;
         text-decoration: none;
         font-weight: 600;
-        margin-left: 25px;
-        font-size: 18px;
-        transition: color 0.3s ease;
-      }
-      .header-right a:hover {
-        color: #cce5ff;
+        font-size: 15px;
       }
 
-      /* Create button bigger */
-      .header-right a.create-link {
-        font-weight: 700;
-        font-size: 20px;
+      .nav-icon:hover {
+        background-color: #004080;
       }
 
-      /* User avatar container */
-      #avatar-icon {
+      .nav-icon img {
+        margin-right: 8px;
+        height: 24px;
+        vertical-align: middle;
+      }
+
+      .nav-label {
+        color: white;
+        font-weight: 600;
+      }
+
+      #avatar-wrapper {
+        display: flex;
+        align-items: center;
         cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+        margin-left: 25px;
+        color: white;
+        font-weight: 600;
+      }
+
+      #avatar-wrapper:hover {
+        background-color: #004080;
+      }
+
+      #avatar-icon {
         font-size: 24px;
         user-select: none;
-        margin-left: 25px;
+        margin-right: 5px;
       }
 
-      /* Dropdown container */
+      #chevron {
+        font-size: 14px;
+        transform: translateY(1px);
+      }
+
       #dropdown {
         position: absolute;
-        right: 30px; /* align with padding */
+        top: 100%;
+        right: 0;
+        transform: translateX(25%);
         background: white;
         border-radius: 6px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        padding: 10px 0;
+        padding: 8px 0;
         width: 140px;
         display: none;
         z-index: 1000;
+        transition: all 0.3s ease;
       }
 
-      /* Dropdown links */
       #dropdown a {
         display: block;
-        padding: 10px 20px;
+        padding: 8px 16px;
         text-decoration: none;
         color: #333;
         font-weight: 600;
+        font-size: 14px;
         transition: background-color 0.25s ease, color 0.25s ease;
       }
+
       #dropdown a:hover {
         background-color: #007bff;
         color: white;
       }
 
-      /* Container for main content */
       main, .content {
         max-width: 720px;
         margin: 30px auto;
         padding: 0 20px;
       }
-
-      .search-link {
-  font-size: 20px;
-  margin-left: 25px;
-}
-
     </style>
   </head>
 
   <body>
     <header>
-      <!-- Left side: logo -->
+      <!-- Left: Logo -->
       <div>
-        <%= image_tag "LOGO.png", alt: "ShowUs Logo", id: "logo" %>
+        <%= image_tag "LOGO3.png", alt: "ShowUs Logo", id: "logo" %>
       </div>
 
       <!-- Right side: links + avatar -->
-      <div class="header-right" style="position: relative;">
-        <%= link_to "🏠 Home", showus_path %>
-        <% if user_signed_in? %>
-          <%= link_to "➕ Create", new_showu_path, class: "create-link" %>
+      <div class="header-right">
+        <!-- Home -->
+        <%= link_to showus_path, class: "nav-icon", aria: { label: "Home" } do %>
+          <%= image_tag "home.png", alt: "Home" %>
+          <span class="nav-label">Home</span>
         <% end %>
-<%= link_to "🔍 Search", "/users/search", class: "search-link", aria: { label: "Search users" } %>
 
-        <span id="avatar-icon" aria-label="User menu" role="button" tabindex="0">👤</span>
+        <!-- Create -->
+        <% if user_signed_in? %>
+          <%= link_to new_showu_path, class: "nav-icon", aria: { label: "Create" } do %>
+            <%= image_tag "create.png", alt: "Create" %>
+            <span class="nav-label">Create</span>
+          <% end %>
+        <% end %>
+
+        <!-- Search -->
+        <%= link_to "/users/search", class: "nav-icon", aria: { label: "Search users" } do %>
+          <%= image_tag "search.png", alt: "Search" %>
+          <span class="nav-label">Search</span>
+        <% end %>
+
+        <!-- Avatar wrapper -->
+        <div id="avatar-wrapper" role="button" tabindex="0" aria-label="User menu">
+          <span id="avatar-icon">
+            <%= image_tag "profile.png", alt: "User menu", style: "height: 24px; vertical-align: middle;" %>
+          </span>
+          <span id="chevron">▾</span>
+        </div>
+
+        <!-- Dropdown -->
         <div id="dropdown" aria-hidden="true">
           <% if user_signed_in? %>
-            <%= link_to "Profile", user_path(current_user.username) %>
+            <%= link_to user_path(current_user.username) do %>
+              Profile
+            <% end %>
             <%= link_to "Sign Out", destroy_user_session_path, method: :delete, data: { confirm: "Are you sure you want to sign out?" } %>
           <% else %>
             <%= link_to "Sign In", new_user_session_path %>
@@ -143,32 +189,26 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const avatarIcon = document.getElementById('avatar-icon');
+        const avatarWrapper = document.getElementById('avatar-wrapper');
         const dropdown = document.getElementById('dropdown');
 
-        avatarIcon.addEventListener('click', () => {
-          if (dropdown.style.display === 'block') {
-            dropdown.style.display = 'none';
-            dropdown.setAttribute('aria-hidden', 'true');
-          } else {
-            dropdown.style.display = 'block';
-            dropdown.setAttribute('aria-hidden', 'false');
-          }
+        avatarWrapper.addEventListener('click', () => {
+          const isVisible = dropdown.style.display === 'block';
+          dropdown.style.display = isVisible ? 'none' : 'block';
+          dropdown.setAttribute('aria-hidden', isVisible ? 'true' : 'false');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
-          if (!avatarIcon.contains(event.target) && !dropdown.contains(event.target)) {
+          if (!avatarWrapper.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.style.display = 'none';
             dropdown.setAttribute('aria-hidden', 'true');
           }
         });
 
-        // Allow keyboard toggle (Enter or Space)
-        avatarIcon.addEventListener('keydown', (event) => {
+        avatarWrapper.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            avatarIcon.click();
+            avatarWrapper.click();
           }
         });
       });

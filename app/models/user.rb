@@ -15,6 +15,9 @@ class User < ApplicationRecord
 
   validates :username, presence: true, uniqueness: { case_sensitive: false }
 
+  has_one_attached :avatar
+
+
    def follow(other_user)
     following << other_user unless self == other_user || following.include?(other_user)
   end
@@ -28,5 +31,11 @@ class User < ApplicationRecord
   def following?(other_user)
     following.include?(other_user)
   end
+
+
+  def user_params
+  params.require(:user).permit(:avatar_url, :other, :fields)
+end
+
 
 end

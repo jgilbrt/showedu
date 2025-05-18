@@ -1,8 +1,8 @@
-<h1>New ShowU</h1>
+<h1 style="text-align: center; font-size: 32px; margin-bottom: 24px; font-weight: 700; color: #1a202c;">New Showreel</h1>
 
-<%= form_with(model: @showu, local: true) do |form| %>
+<%= form_with(model: @showu, local: true, html: { class: "showu-form" }) do |form| %>
   <% if @showu.errors.any? %>
-    <div>
+    <div class="error-messages" role="alert" aria-live="assertive">
       <h2><%= pluralize(@showu.errors.count, "error") %> prohibited this ShowU from being saved:</h2>
       <ul>
         <% @showu.errors.full_messages.each do |message| %>
@@ -12,67 +12,168 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :receiver_id, "Who do you want to show this to?" %><br>
+  <div class="form-group">
+    <%= form.label :receiver_id, "Who do you want to show this to?" %>
     <%= form.collection_select :receiver_id, current_user.following, :id, :username, prompt: "Select a follower" %>
   </div>
 
-  <div>
-    <%= form.label :description %><br>
-    <%= form.text_area :description %>
+  <div class="form-group">
+    <%= form.label :description %>
+    <%= form.text_area :description, placeholder: "Write a description..." %>
   </div>
 
-  <div>
-    <%= label_tag :media_type, "Choose media type:" %><br>
+  <div class="form-group">
+    <%= label_tag :media_type, "Choose media type:" %>
     <%= select_tag :media_type, options_for_select(["YouTube", "Image", "Spotify", "TMDB"]), id: "media-type-select", prompt: "Select media type" %>
   </div>
 
-  <div id="youtube-field" style="display: none;">
-    <%= form.label :youtube_url, "YouTube Link" %><br>
-    <%= form.text_field :youtube_url %>
+  <div id="youtube-field" class="media-field" style="display: none;">
+    <%= form.label :youtube_url, "YouTube Link" %>
+    <%= form.text_field :youtube_url, placeholder: "Paste YouTube URL here" %>
   </div>
 
-  <div id="image-field" style="display: none;">
-    <%= form.label :image_url, "Image Link" %><br>
-    <%= form.text_field :image_url %>
+  <div id="image-field" class="media-field" style="display: none;">
+    <%= form.label :image_url, "Image Link" %>
+    <%= form.text_field :image_url, placeholder: "Paste image URL here" %>
   </div>
 
-  <div id="spotify-field" style="display: none;">
-    <%= form.label :spotify_url, "Spotify Link" %><br>
-    <%= form.text_field :spotify_url %>
+  <div id="spotify-field" class="media-field" style="display: none;">
+    <%= form.label :spotify_url, "Spotify Link" %>
+    <%= form.text_field :spotify_url, placeholder: "Paste Spotify URL here" %>
   </div>
 
-  <div id="tmdb-field" style="display: none;">
-    <%= form.label :tmdb_poster_path, "TMDB Poster Path" %><br>
-    <%= form.text_field :tmdb_poster_path %>
+  <div id="tmdb-field" class="media-field" style="display: none;">
+    <%= form.label :tmdb_poster_path, "TMDB Poster Path" %>
+    <%= form.text_field :tmdb_poster_path, placeholder: "Paste TMDB poster path here" %>
   </div>
 
-  <div>
-    <%= form.submit "Post ShowU" %>
+  <div class="form-group">
+    <%= form.submit "Post Showreel" %>
   </div>
 <% end %>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("media-type-select");
-    const youtubeField = document.getElementById("youtube-field");
-    const imageField = document.getElementById("image-field");
-    const spotifyField = document.getElementById("spotify-field");
-    const tmdbField = document.getElementById("tmdb-field");
+    const fields = {
+      YouTube: document.getElementById("youtube-field"),
+      Image: document.getElementById("image-field"),
+      Spotify: document.getElementById("spotify-field"),
+      TMDB: document.getElementById("tmdb-field")
+    };
 
     function toggleFields() {
-      youtubeField.style.display = "none";
-      imageField.style.display = "none";
-      spotifyField.style.display = "none";
-      tmdbField.style.display = "none";
-
-      if (select.value === "YouTube") youtubeField.style.display = "block";
-      if (select.value === "Image") imageField.style.display = "block";
-      if (select.value === "Spotify") spotifyField.style.display = "block";
-      if (select.value === "TMDB") tmdbField.style.display = "block";
+      Object.values(fields).forEach(field => field.style.display = "none");
+      if (fields[select.value]) fields[select.value].style.display = "block";
     }
 
     select.addEventListener("change", toggleFields);
-    toggleFields(); // Show the correct field on initial load (if needed)
+    toggleFields(); // Show correct field on load
   });
 </script>
+
+<style>
+  /* Container for the form */
+  form.showu-form {
+    max-width: 520px;
+    margin: 40px auto 60px;
+    padding: 30px 35px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+  }
+
+  /* Error message box */
+  .error-messages {
+    border: 1.5px solid #e74c3c;
+    background-color: #fceaea;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    color: #c0392b;
+  }
+  .error-messages h2 {
+    margin-top: 0;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .error-messages ul {
+    margin: 10px 0 0 20px;
+    list-style-type: disc;
+  }
+  .error-messages li {
+    margin-bottom: 6px;
+  }
+
+  /* Group spacing */
+  .form-group {
+    margin-bottom: 22px;
+  }
+
+  /* Labels */
+  label, label[for] {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #34495e;
+  }
+
+  /* Inputs, selects, textareas */
+  input[type="text"],
+  select,
+  textarea,
+  select[multiple] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.8px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: inherit;
+    color: #2d3748;
+    box-sizing: border-box;
+  }
+
+  /* Focus style */
+  input[type="text"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
+  }
+
+  /* Textarea resize */
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  /* Submit button */
+  input[type="submit"] {
+    width: 100%;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 12px 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="submit"]:hover,
+  input[type="submit"]:focus {
+    background-color: #1e40af;
+    outline: none;
+  }
+
+  /* Media fields wrapper */
+  .media-field {
+    margin-top: -8px;
+  }
+</style>

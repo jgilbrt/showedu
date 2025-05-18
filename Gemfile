@@ -68,3 +68,4 @@ end
 
 gem 'devise'
 gem 'httparty'
+gem 'image_processing', '~> 1.2'

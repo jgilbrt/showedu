@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Avatar with Edit Icon</title>
+  <style>
+    /* Container for the entire profile */
+    .profile-container {
+      max-width: 600px;
+      margin: 40px auto;
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #222;
+    }
+
+    /* Outer wrapper for avatar + icon */
+    .avatar-wrapper-outer {
+      position: relative;      /* relative for positioning icon */
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 20px auto;
+      overflow: visible;       /* allow edit icon overflow */
+      z-index: 1;
+      /* border: 1px solid red; */ /* uncomment to debug */
+    }
+
+    /* Avatar circle container */
+    .profile-avatar-wrapper {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      overflow: hidden;        /* crop image to circle */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background-color: #f7f7f7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Avatar image itself */
+    .profile-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Placeholder avatar (no image) */
+    .profile-avatar.placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      color: #aaa;
+      user-select: none;
+      height: 150px;
+    }
+
+    /* Edit icon circle */
+    .avatar-edit-icon {
+      position: absolute;     /* absolute inside avatar-wrapper-outer */
+      bottom: -6px;           /* overlap outside avatar circle */
+      right: -6px;
+      width: 36px;
+      height: 36px;
+      background-color: white;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+      z-index: 9999;          /* very high on top */
+      transition: background-color 0.2s ease;
+    }
+
+    .avatar-edit-icon:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Hide actual file input */
+    .avatar-upload-form input[type="file"] {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      border: 0 !important;
+    }
+  </style>
+</head>
+<body>
+
+
+<div class="postcard" data-showu-id="<%= showu.id %>">
+  <div class="postcard-header">
+    <strong><%= showu.user&.username || "Unknown" %></strong> showed
+    <strong><%= showu.receiver&.username || "Unknown" %></strong>
+    <span class="time"><%= time_ago_in_words(showu.created_at) %> ago</span>
+  </div>
+
+  <div class="postcard-media">
+    <% if showu.youtube_url.present? %>
+      <% youtube_id = showu.youtube_url[/v=([^&]+)/, 1] || showu.youtube_url.split('/').last %>
+      <iframe width="100%" height="315"
+        src="https://www.youtube.com/embed/<%= youtube_id %>" frameborder="0" allowfullscreen></iframe>
+
+    <% elsif showu.spotify_url.present? %>
+      <% spotify_id = showu.spotify_url.split('/').last.split('?').first %>
+      <iframe style="border-radius:12px"
+        src="https://open.spotify.com/embed/track/<%= spotify_id %>?utm_source=generator"
+        width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+
+    <% elsif showu.tmdb_poster_path.present? %>
+      <img src="https://image.tmdb.org/t/p/w500<%= showu.tmdb_poster_path %>" alt="Movie Poster" style="max-width: 200px;">
+
+    <% elsif showu.image_url.present? %>
+      <img src="<%= showu.image_url %>" alt="ShowU image" style="max-width: 100%; height: auto;">
+
+    <% else %>
+      <div>No media available</div>
+    <% end %>
+  </div>
+
+  <div class="postcard-description"><%= showu.description %></div>
+
+  <div class="postcard-actions">
+    <button class="like-btn" type="button" aria-label="Like button">
+      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077035.png" alt="heart" width="20" style="vertical-align: middle;">
+      <span class="like-count"><%= showu.likes.count %></span>
+    </button>
+
+    <button class="comment-btn" type="button" aria-label="Comment button" onclick="toggleCommentBox(<%= showu.id %>)">
+      <img src="https://static-00.iconduck.com/assets.00/comment-icon-1024x964-julk98bl.png" alt="comment" width="20" style="vertical-align: middle;">
+      <span class="comment-count"><%= showu.comments.count %></span>
+    </button>
+  </div>
+
+  <div class="postcard-comments" id="comment-box-<%= showu.id %>" style="display: none;">
+    <ul class="comments-list">
+      <% showu.comments.each do |comment| %>
+        <li><strong><%= comment.user.username %>:</strong> <%= comment.body %></li>
+      <% end %>
+    </ul>
+
+    <form class="comment-form" onsubmit="submitComment(event, <%= showu.id %>)">
+      <textarea name="comment" placeholder="Write a comment..." rows="2" required></textarea>
+      <button type="submit">Post</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Like buttons
+    document.body.addEventListener('click', async (e) => {
+      if (e.target.closest('.like-btn')) {
+        const btn = e.target.closest('.like-btn');
+        const postcard = btn.closest('.postcard');
+        const showuId = postcard.dataset.showuId;
+
+        btn.disabled = true;
+
+        const response = await fetch(`/showus/${showuId}/like`, {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': getCsrfToken() }
+        });
+
+        btn.disabled = false;
+
+        if (response.ok) {
+          const data = await response.json();
+          btn.querySelector('.like-count').textContent = data.likes_count;
+        } else {
+          alert('Error liking post');
+        }
+      }
+    });
+  });
+
+  function toggleCommentBox(showuId) {
+    const box = document.getElementById(`comment-box-${showuId}`);
+    box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+  }
+
+  async function submitComment(event, showuId) {
+    event.preventDefault();
+    const form = event.target;
+    const textarea = form.querySelector('textarea[name="comment"]');
+    const commentBody = textarea.value.trim();
+
+    if (!commentBody) return;
+
+    const response = await fetch(`/showus/${showuId}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken(),
+      },
+      body: JSON.stringify({ comment: { body: commentBody } }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const commentList = form.parentElement.querySelector('.comments-list');
+
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${data.username}:</strong> ${data.body}`;
+      commentList.appendChild(li);
+
+      const postcard = form.closest('.postcard');
+      postcard.querySelector('.comment-count').textContent = data.comments_count;
+
+      textarea.value = '';
+    } else {
+      alert('Error posting comment');
+    }
+  }
+
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  }
+</script>
+
+
+</body>
+</html>

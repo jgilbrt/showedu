@@ -1,85 +1,168 @@
+<style>
+  .profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #222;
+  }
+
+  .profile-avatar-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f7f7f7;
+  }
+
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .profile-avatar.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    color: #aaa;
+    user-select: none;
+  }
+
+  .avatar-edit-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    user-select: none;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+  }
+
+  .avatar-edit-icon:hover {
+    background-color: #f0f0f0;
+  }
+
+  .avatar-upload-form input[type="file"] {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    border: 0 !important;
+  }
+
+  .user-name {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #111;
+  }
+
+  .follow-stats {
+    font-size: 17px;
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  h2 {
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 24px;
+    color: #222;
+  }
+
+  .feed {
+    text-align: left;
+  }
+
+  .follow-button {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 24px;
+  }
+
+  .follow-button:hover {
+    background-color: #007fd1;
+  }
+</style>
+
+
 <div class="profile-container">
+<div class="profile-avatar-wrapper">
+  <% if @user.avatar_url.present? %>
+    <%= image_tag @user.avatar_url, class: "profile-avatar" %>
+  <% else %>
+    <div class="profile-avatar placeholder" aria-label="No avatar image">+</div>
+  <% end %>
 
-  <div class="profile-header">
-    <h1><%= @user.username %>'s Profile</h1>
+  <% if user_signed_in? && current_user == @user %>
+  <%= form_with url: update_avatar_user_path(@user.username), method: :patch, local: true, html: { multipart: true, class: "avatar-upload-form" } do |form| %>
+  <label class="avatar-edit-icon" title="Edit avatar" aria-label="Edit avatar">
+    <% if @user.avatar.attached? %>
+      ✏️
+    <% else %>
+      ➕
+    <% end %>
+    <%= form.file_field :avatar, onchange: "this.form.submit();" %>
+  </label>
+<% end %>
 
-    <% if user_signed_in? && current_user != @user %>
-      <% if current_user.following.include?(@user) %>
-        <%= button_to "Unfollow", unfollow_user_path(@user.username), method: :delete %>
-      <% else %>
-        <%= button_to "Follow", follow_user_path(@user.username), method: :post %>
+  <% end %>
+</div>
+
+
+
+  <div class="user-name">
+    <%= @user.username.capitalize %>
+  </div>
+
+  <div class="follow-stats" aria-live="polite">
+    Followers: <%= @followers.count %> &nbsp;&nbsp;|&nbsp;&nbsp; Following: <%= @following.count %>
+  </div>
+
+  <% if user_signed_in? && current_user != @user %>
+    <% if current_user.following?(@user) %>
+      <%= form_with url: unfollow_user_path(@user.username), method: :delete, local: true do %>
+        <button class="follow-button" type="submit">Unfollow</button>
+      <% end %>
+    <% else %>
+      <%= form_with url: follow_user_path(@user.username), method: :post, local: true do %>
+        <button class="follow-button" type="submit">Follow</button>
       <% end %>
     <% end %>
-  </div>
+  <% end %>
 
-  <div class="follow-info">
-    <div>
-      Followers: <%= @followers.count %>
-      <ul class="follow-list">
-        <% @followers.each do |follower| %>
-          <li><%= link_to follower.username, user_path(follower.username) %></li>
-        <% end %>
-      </ul>
-    </div>
-
-    <div>
-      Following: <%= @following.count %>
-      <ul class="follow-list">
-        <% @following.each do |followed| %>
-          <li><%= link_to followed.username, user_path(followed.username) %></li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
-
-  <h2 style="text-align:center">Your ShowU's</h2>
+  <h2 style="color:black">My Showreels</h2>
 
   <div class="feed">
     <% @showus.each do |showu| %>
-      <% is_spotify = showu.spotify_url.present? %>
-      <div class="postcard <%= 'spotify-post' if is_spotify %>">
-        <div class="postcard-header">
-          <strong><%= showu.user&.username || "Unknown User" %></strong> showed
-          <strong><%= showu.receiver&.username || "Unknown Receiver" %></strong>
-          <span class="time"><%= time_ago_in_words(showu.created_at) %> ago</span>
-        </div>
-
-        <div class="postcard-media">
-          <% if showu.youtube_url.present? %>
-            <% youtube_id = showu.youtube_url[/v=([^&]+)/, 1] || showu.youtube_url.split('/').last %>
-            <iframe width="100%" src="https://www.youtube.com/embed/<%= youtube_id %>" frameborder="0" allowfullscreen></iframe>
-
-          <% elsif showu.spotify_url.present? %>
-            <% spotify_id = showu.spotify_url.split('/').last.split('?').first %>
-            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/<%= spotify_id %>?utm_source=generator"
-                    width="100%" frameborder="0"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"></iframe>
-
-          <% elsif showu.image_url.present? %>
-            <img src="<%= showu.image_url %>" alt="ShowU image" class="postcard-image">
-
-          <% else %>
-            <div class="no-media">No media available</div>
-          <% end %>
-        </div>
-
-        <div class="postcard-description">
-          <%= showu.description %>
-        </div>
-
-        <div class="postcard-actions">
-          <button class="like-btn">Like</button>
-          <button class="comment-btn" onclick="toggleCommentBox(<%= showu.id %>)">Comment</button>
-        </div>
-
-        <div class="postcard-comments" id="comment-box-<%= showu.id %>" style="display: none;">
-          <form>
-            <textarea placeholder="Write a comment..." rows="2"></textarea>
-            <button type="submit">Post</button>
-          </form>
-        </div>
-      </div>
+      <%= render partial: "postcard", locals: { showu: showu } %>
     <% end %>
   </div>
 </div>
@@ -87,6 +170,7 @@
 <script>
   function toggleCommentBox(id) {
     const box = document.getElementById(`comment-box-${id}`);
-    box.style.display = box.style.display === "none" ? "block" : "none";
+    if (!box) return;
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
   }
 </script>

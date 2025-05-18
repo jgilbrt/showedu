@@ -9,9 +9,14 @@ Rails.application.routes.draw do
   get 'pages/home'
   get "up" => "rails/health#show", as: :rails_health_check
 
-  root to: 'pages#home'
+  root to: 'showus#index'
 
-  resources :showus, only: [:index, :new, :create]
+  resources :showus, only: [:index, :new, :create] do
+    member do
+      post 'like'               # Like action
+      post 'comments', to: 'comments#create'
+    end
+  end
 
   resources :users, only: [:show], param: :username do
     collection do
@@ -20,6 +25,8 @@ Rails.application.routes.draw do
     member do
       post :follow
       delete :unfollow
+      patch :update_avatar
+      post :toggle_follow
     end
   end
 end

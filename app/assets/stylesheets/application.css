@@ -165,77 +165,6 @@ this is for showus/index.html.erb
 }
 
 
-/* showus/new.html.erb styles */
-
-form {
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-form div {
-  margin-bottom: 15px;
-}
-
-form label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  color: #333;
-}
-
-form input[type="text"],
-form select,
-form textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-form input[type="text"]:focus,
-form select:focus,
-form textarea:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-form input[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  font-weight: 600;
-  padding: 7px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background-color 0.3s ease;
-}
-
-form input[type="submit"]:hover {
-  background-color: #0056b3;
-}
-
-div > h2 {
-  color: #b00020;
-  margin-bottom: 10px;
-}
-
-div ul {
-  list-style: inside disc;
-  color: #b00020;
-}
 
 /* users/show.html.erb styles */
 
@@ -360,4 +289,27 @@ button:focus,
 input[type="submit"]:focus {
   outline: 2px solid #0056b3;
   outline-offset: 2px;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+h1, h2 {
+  font-size: 32px !important;
+}
+
+.username-link {
+  color: blue;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.username-link:hover {
+  text-decoration: none; /* optional, nice UX */
 }
